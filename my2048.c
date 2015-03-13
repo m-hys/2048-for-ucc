@@ -12,23 +12,68 @@ int dy[4] = { -1, 1, 0,  0};
 int board[4][4];
 int score;
 
+void changeColor(int b){
+  if(b==0){
+    printf("\033[0m");
+  } else {
+    switch((b-1)%6){
+    case 0:
+      printf("\033[1;43m");
+      break;
+    case 1:
+      printf("\033[1;42m");
+      break;
+    case 2:
+      printf("\033[1;46m");
+      break;
+    case 3:
+      printf("\033[1;44m");
+      break;
+    case 4:
+      printf("\033[1;45m");
+      break;
+    case 5:
+      printf("\033[1;41m");
+      break;
+    }
+  }
+}
+void resetColor(){
+  changeColor(0);
+}
+
 void showBoard(){
-  int i,j;
+  int i,j,b;
+  // clear screen
   printf("\033[2J");
   printf("\033[1;1H");
+  // draw
   for(i=0; i<4; i++){
     printf("+------+------+------+------+\n");
-    printf("|      |      |      |      |\n");
-    printf("| ");
     for(j=0; j<4; j++){
-      if(board[i][j] != 0)
-        printf("%4d | ", 1 << board[i][j]);
+      printf("|");
+      changeColor(board[i][j]);
+      printf("      ");
+      resetColor();
+    } printf("|\n");
+    for(j=0; j<4; j++){
+      printf("|");
+      b = board[i][j];
+      changeColor(b);
+      if(b != 0)
+        printf(" %4d ", 1 << b);
       else
-        printf("     | ");
-    }
-    printf("\n");
-    printf("|      |      |      |      |\n");
+        printf("      ");
+      resetColor();
+    } printf("|\n");
+    for(j=0; j<4; j++){
+      printf("|");
+      changeColor(board[i][j]);
+      printf("      ");
+      resetColor();
+    } printf("|\n");
   }
+
   printf("+------+------+------+------+\n");
 }
 
@@ -112,6 +157,8 @@ int c2dir(char c){
     return 2;
   case 'a':
     return 3;
+  case 'q':
+    return 4;
   default:
     return -1;
   }
@@ -210,10 +257,12 @@ int main(){
   do{
     showBoard();
     printf("score: %d\n", score);
+    printf("input command(wsda), or 'q' to quit.\n");
     do{
       printf("> ");
       d = c2dir(getchar());
     } while(d==-1 || !movable(d));
+    if(d==4){ break; } // quit
     Move(d);
     putNum();
   } while(!gameover());
